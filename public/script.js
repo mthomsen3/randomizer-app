@@ -1,5 +1,6 @@
 
 let deviceId;
+let access_token;
 
 //Obtains parameters from the hash of the URL
 //@return Object
@@ -14,11 +15,6 @@ function getHashParams() {
     return hashParams;
 }
 
-function getToken() {
-    var params = getHashParams();
-    var access_token = params.access_token;
-    return access_token;
-}
 
 // anonymous function
 // login and authentication
@@ -26,7 +22,7 @@ function getToken() {
 
     var params = getHashParams();
 
-    var access_token = params.access_token,
+        access_token = params.access_token,
         refresh_token = params.refresh_token,  // TODO refresh token is not used
         error = params.error;
 
@@ -114,14 +110,12 @@ function getToken() {
 
 // Play a specified track on the Web Playback SDK's device ID
 function play(device_id, track) {
-    console.log(getToken());
-    console.log(String(getToken()));
     $.ajax({
         url: "https://api.spotify.com/v1/me/player/play?device_id=" + device_id,
         type: "PUT",
         data: `{"uris": ["${track}"]}`,
         beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", "Bearer " + String(getToken()));
+            xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
         },
         success: function (data) {
             console.log(data);
@@ -152,7 +146,7 @@ function getASong() {
             random_seed,
         type: "GET",
         beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", "Bearer " + String(getToken()));
+            xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
         },
         success: function (data) {
             console.log(data);
@@ -187,7 +181,7 @@ function saveTrack(tid) {
         url: "https://api.spotify.com/v1/me/tracks?ids=" + track,
         type: "PUT",
         beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", "Bearer " + String(getToken()));
+            xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
         },
         success: function (data) {
             console.log(data);
