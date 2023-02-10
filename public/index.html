@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Example of the Authorization Code flow with Spotify</title>
+  <link href="dist/style.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="container">
+    <div id="login">
+      <h1>This is an example of the Authorization Code flow</h1>
+      <a href="/login" class="btn btn-primary">Log in with Spotify</a>
+    </div>
+    <div id="loggedin">
+      <div class="button">
+        <button class="random-button" id="random-button" onclick="getASong()">
+          Get a random song
+        </button>
+      </div>
+
+
+      <script src="https://sdk.scdn.co/spotify-player.js"></script>
+
+      <div">
+        <center>
+          <iframe id="embed-uri" src="about:blank" width="300" height="380" frameborder="0" allowtransparency="true"
+            allow="encrypted-media"></iframe>
+          </br>
+          <a href="#" onclick="saveTrack('current-track-name-save')">
+            <img style="display:none;" id="current-track-name-save" src="//:0" />
+          </a>
+        </center>
+    </div>
+
+  </div>
+  </div>
+
+  <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+  <script src="login.js"></script>
+</body>
+
+</html>
