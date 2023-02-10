@@ -1,9 +1,9 @@
+
 let deviceId;
 
-/**
- * Obtains parameters from the hash of the URL
- * @return Object
- */
+//Obtains parameters from the hash of the URL
+//@return Object
+
 function getHashParams() {
     var hashParams = {};
     var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -20,13 +20,14 @@ function getToken() {
     return access_token;
 }
 
-
+// anonymous function
+// login and authentication
 (function () {
 
     var params = getHashParams();
 
     var access_token = params.access_token,
-        refresh_token = params.refresh_token,
+        refresh_token = params.refresh_token,  // TODO refresh token is not used
         error = params.error;
 
     if (error) {
@@ -81,8 +82,10 @@ function getToken() {
                     player.togglePlay();
                 };
 
+                // auto-play...
                 // this isn't working, never fires correctly
                 // there is no official api hook for 'song end'
+                // for now, auto-play is not functional
                 player.addListener('player_state_changed', state => {
                     if (
                         state.paused &&
@@ -139,7 +142,7 @@ function generateQuery(length) {
 
 function getASong() {
     let random_seed = generateQuery(2);
-    let random_offset = Math.floor(Math.random() * 3000); // returns a random integer from 0 to 500
+    let random_offset = Math.floor(Math.random() * 3000); // returns a random integer from 0 to 3000
 
     $.ajax({
         url:
@@ -167,6 +170,7 @@ function getASong() {
             );
             $("#current-track-name-save").css("display", "block");
         },
+        // TODO - this should be stopped after a certain number of attempts to prevent spamming
         error: function() { 
             getASong();
         }  
