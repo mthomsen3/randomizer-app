@@ -1,5 +1,5 @@
 /**
- * The Randomizer
+ * Spotify Surprise
 */
 
 require('dotenv').config()

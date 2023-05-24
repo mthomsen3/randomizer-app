@@ -1,8 +1,8 @@
-# spotify surprise
+# spotify surprise #
 
 live url: https://spotifysurprise.com
 
-### project summary 
+### project summary ###
 
 This is based on a project by @rob_med with source code from glitch.com
 
@@ -18,7 +18,7 @@ https://developer.spotify.com/documentation/general/guides/authorization/
 This version also features a slightly edited 'randomizer' function that samples the Spotify search results more deeply (though with increased changes to return a null - this funcionality is not yet optimized)
 
 
-### future plans
+### future plans ###
 
 Primary plans are to add new randomization algorithms and/or search bias parameters that can be configured by the user (such as artists, genres, etc).
 

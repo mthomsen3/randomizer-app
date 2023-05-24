@@ -1,0 +1,32 @@
+body {
+    font-family: 'Rubik', sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    min-height: 100vh;
+    background: $screengray;
+}
+
+
+#login,
+#loggedin {
+    display: none;
+}
+
+.text-overflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 500px;
+}
+
+#random-button {
+    text-align: center;
+    padding: 1em;
+    margin: 2em;
+}
+
+.button, .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
