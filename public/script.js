@@ -1,6 +1,9 @@
 
 let deviceId;
 let access_token;
+let maxRetries = 5; // set a maximum number of retries
+let retryCount = 0; // counter to keep track of number of retries
+
 
 //Obtains parameters from the hash of the URL
 //@return Object
@@ -18,13 +21,16 @@ function getHashParams() {
 
 // anonymous function
 // login and authentication
-(function () {
+(() => {
 
-    var params = getHashParams();
+    const params = getHashParams();
 
-        access_token = params.access_token,
-        refresh_token = params.refresh_token,  // TODO refresh token is not used
-        error = params.error;
+    access_token = params.access_token,
+    refresh_token = params.refresh_token,
+    error = params.error;
+
+    // Add this line after getting the access_token to remove it from the URL
+    window.history.replaceState(null, null, '/');
 
     if (error) {
         alert('There was an error during the authentication');
@@ -136,7 +142,7 @@ function generateQuery(length) {
 
 function getASong() {
     let random_seed = generateQuery(2);
-    let random_offset = Math.floor(Math.random() * 3000); // returns a random integer from 0 to 3000
+    let random_offset = Math.floor(Math.random() * 3000); 
 
     $.ajax({
         url:
@@ -166,11 +172,71 @@ function getASong() {
         },
         // TODO - this should be stopped after a certain number of attempts to prevent spamming
         error: function() { 
-            getASong();
-        }  
+            retryCount++;
+            if(retryCount <= maxRetries) {
+                getASong();
+            } else {
+                alert("Unable to get a song. Please try again.");
+                retryCount = 0;
+            }
+        }
     });
 }
 
+$(document).ready(function() {
+    $('#current-track-name-save').click(function(event) {
+        event.preventDefault();
+        toggleTrackSave('current-track-name-save');
+    });
+});
+
+
+function toggleTrackSave(tid) {
+    var track = $("#" + tid)
+        .attr("data-song")
+        .split(":")
+        .pop();
+
+    // Check if the track is saved already
+    if ($("#" + tid).hasClass("saved")) {
+        // Track is saved, so we need to unsave it
+        $.ajax({
+            url: "https://api.spotify.com/v1/me/tracks?ids=" + track,
+            type: "DELETE",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
+            },
+            success: function (data) {
+                console.log(data);
+                $("#" + tid).removeClass("saved");
+                $("#" + tid).attr(
+                    "src",
+                    "https://cdn.glitch.com/eed3cfeb-d097-4769-9d03-2d3a6cc7c004%2Ficons8-heart-24.png?v=1597232027543"
+                );
+            }
+        });
+    } else {
+        // Track is not saved, so we need to save it
+        $.ajax({
+            url: "https://api.spotify.com/v1/me/tracks?ids=" + track,
+            type: "PUT",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
+            },
+            success: function (data) {
+                console.log(data);
+                $("#" + tid).addClass("saved");
+                $("#" + tid).attr(
+                    "src",
+                    "https://cdn.glitch.com/eed3cfeb-d097-4769-9d03-2d3a6cc7c004%2Ficons8-heart-24(1).png?v=1597232463038"
+                );
+            }
+        });
+    }
+}
+
+
+// TODO: DELETE, replaced by toggleTrackSave
 function saveTrack(tid) {
     var track = $("#" + tid)
         .attr("data-song")
