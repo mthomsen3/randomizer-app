@@ -147,8 +147,8 @@ function generateQuery(length) {
 }
 
 function getASong() {
-    let random_seed = generateQuery(2);
-    let random_offset = Math.floor(Math.random() * 3000);
+    let random_seed = generateQuery(3);
+    let random_offset = Math.floor(Math.random() * 2000);
 
     $.ajax({
         url:
