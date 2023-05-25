@@ -1,9 +1,9 @@
 
 let deviceId;
 let access_token;
-let maxRetries = 5; // set a maximum number of retries
+let maxRetries = 10; // set a maximum number of retries
 let retryCount = 0; // counter to keep track of number of retries
-
+let currentSongUri = null; // store the current song URI
 
 //Obtains parameters from the hash of the URL
 //@return Object
@@ -25,8 +25,8 @@ function getHashParams() {
 
     const params = getHashParams();
 
-    access_token = params.access_token,
-    refresh_token = params.refresh_token,
+    access_token = params.access_token;
+    refresh_token = params.refresh_token;
     error = params.error;
 
     // Add this line after getting the access_token to remove it from the URL
@@ -36,17 +36,6 @@ function getHashParams() {
         alert('There was an error during the authentication');
     } else {
         if (access_token) {
-
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me',
-                headers: {
-                    'Authorization': 'Bearer ' + access_token
-                },
-                success: function (response) {
-                    $('#login').hide();
-                    $('#loggedin').show();
-                }
-            });
 
             // initialize player
             window.onSpotifyWebPlaybackSDKReady = () => {
@@ -80,11 +69,12 @@ function getHashParams() {
                     console.error(message);
                 });
 
-                document.getElementById('togglePlay').onclick = function () {
-                    player.togglePlay();
-                };
+                let togglePlayButton = document.getElementById('togglePlay');
+                if (togglePlayButton !== null) {
+                    togglePlayButton.addEventListener('click', playSong);
+                }
 
-                // auto-play...
+                // auto-play next song...
                 // this isn't working, never fires correctly
                 // there is no official api hook for 'song end'
                 // for now, auto-play is not functional
@@ -95,13 +85,29 @@ function getHashParams() {
                         state.restrictions.disallow_resuming_reasons &&
                         state.restrictions.disallow_resuming_reasons[0] === "not_paused"
                     ) {
-                        console.log("finished");
+                        //console.log("finished");
                         getASong();
                     }
                 });
 
                 player.connect();
             }
+
+            let script = document.createElement('script');
+            script.src = "https://sdk.scdn.co/spotify-player.js";
+            document.body.appendChild(script);
+
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me',
+                headers: {
+                    'Authorization': 'Bearer ' + access_token
+                },
+                success: function (response) {
+                    $('#login').hide();
+                    $('#loggedin').show();
+                }
+            });
+
 
         } else {
             // render initial screen
@@ -124,7 +130,7 @@ function play(device_id, track) {
             xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
         },
         success: function (data) {
-            console.log(data);
+            //console.log(data);
         }
     });
 }
@@ -142,7 +148,7 @@ function generateQuery(length) {
 
 function getASong() {
     let random_seed = generateQuery(2);
-    let random_offset = Math.floor(Math.random() * 3000); 
+    let random_offset = Math.floor(Math.random() * 3000);
 
     $.ajax({
         url:
@@ -155,10 +161,12 @@ function getASong() {
             xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
         },
         success: function (data) {
-            console.log(data);
+            //console.log(data);
             let trackUri = data.tracks.items[0].uri;
 
-            play(deviceId, trackUri);
+            // Store the track URI for later
+            currentSongUri = trackUri;
+
             $("#current-track-name-save").attr("data-song", data.tracks.items[0].uri);
             $("#current-track-name-save").attr(
                 "src",
@@ -171,9 +179,9 @@ function getASong() {
             $("#current-track-name-save").css("display", "block");
         },
         // TODO - this should be stopped after a certain number of attempts to prevent spamming
-        error: function() { 
+        error: function () {
             retryCount++;
-            if(retryCount <= maxRetries) {
+            if (retryCount <= maxRetries) {
                 getASong();
             } else {
                 alert("Unable to get a song. Please try again.");
@@ -183,8 +191,25 @@ function getASong() {
     });
 }
 
-$(document).ready(function() {
-    $('#current-track-name-save').click(function(event) {
+// Play a specified track on the Web Playback SDK's device ID
+function playSong() {
+    if (currentSongUri !== null) {
+        $.ajax({
+            url: "https://api.spotify.com/v1/me/player/play?device_id=" + deviceId,
+            type: "PUT",
+            data: `{"uris": ["${currentSongUri}"]}`,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
+            },
+            success: function (data) {
+                //console.log(data);
+            }
+        });
+    }
+}
+
+$(document).ready(function () {
+    $('#current-track-name-save').click(function (event) {
         event.preventDefault();
         toggleTrackSave('current-track-name-save');
     });
@@ -207,7 +232,7 @@ function toggleTrackSave(tid) {
                 xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
             },
             success: function (data) {
-                console.log(data);
+                //console.log(data);
                 $("#" + tid).removeClass("saved");
                 $("#" + tid).attr(
                     "src",
@@ -224,7 +249,7 @@ function toggleTrackSave(tid) {
                 xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
             },
             success: function (data) {
-                console.log(data);
+                //console.log(data);
                 $("#" + tid).addClass("saved");
                 $("#" + tid).attr(
                     "src",
@@ -235,26 +260,3 @@ function toggleTrackSave(tid) {
     }
 }
 
-
-// TODO: DELETE, replaced by toggleTrackSave
-function saveTrack(tid) {
-    var track = $("#" + tid)
-        .attr("data-song")
-        .split(":")
-        .pop();
-
-    $.ajax({
-        url: "https://api.spotify.com/v1/me/tracks?ids=" + track,
-        type: "PUT",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", "Bearer " + String(access_token));
-        },
-        success: function (data) {
-            console.log(data);
-            $("#" + tid).attr(
-                "src",
-                "https://cdn.glitch.com/eed3cfeb-d097-4769-9d03-2d3a6cc7c004%2Ficons8-heart-24(1).png?v=1597232463038"
-            );
-        }
-    });
-}

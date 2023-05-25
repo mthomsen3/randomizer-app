@@ -2,14 +2,15 @@
 <html>
 
 <head>
-  <title>The Randomizer</title>
+  <title>Spotify Surprise</title>
   <link href="css/style.css" rel="stylesheet" />
+  <link rel="icon" href="dice.svg" type="image/svg+xml">
 </head>
 
 <body>
   <div class="container">
     <div id="login">
-      <h1>Welcome to The Randomizer</h1>
+      <h1>Welcome to Spotify Surprise</h1>
       <a href="/login" class="btn btn-primary">Log in with Spotify</a>
     </div>
     <div id="loggedin">
@@ -19,17 +20,17 @@
         </button>
       </div>
 
-      <script src="https://sdk.scdn.co/spotify-player.js"></script>
+      <!--<script src="https://sdk.scdn.co/spotify-player.js"></script>-->
 
-      <div">
-        <center>
+      <div>
+        <div class="player-container">
           <iframe id="embed-uri" src="about:blank" width="300" height="380" frameborder="0" allowtransparency="true"
             allow="encrypted-media"></iframe>
           </br>
           <a href="#">
             <img style="display:none;" id="current-track-name-save" src="//:0" />
           </a>
-        </center>
+        </div>
     </div>
   </div>
   </div>

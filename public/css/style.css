@@ -31,6 +31,14 @@ body {
   align-items: center;
 }
 
+.player-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 2em;
+}
+
 button {
   position: relative;
   display: inline-block;
